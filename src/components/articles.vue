@@ -90,7 +90,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-size="10"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="totalPage">
       </el-pagination>
@@ -104,20 +104,34 @@
         data(){
           return{
             access:'管理',
+            pageSize:0,
             currentPage: 1,
             totalPage:1,
-            tableData: [{
-              name: 'ssss',
-              writer: 'sssss'
-            },
-              {
-                name: 'aa',
-                writer: 'aaa'
-              }],
+            tableData: [],
+            newData:[],
             search: ''
           }
         },
+      created(){
+        this.article()
+      },
       methods:{
+        article(){
+            this.$axios({
+              method:'GET',
+              contentType:'application/json; charset=utf-8',
+              url:'http://127.0.0.1:8088/article/get/reviewed',
+            }).then(res=>{
+              //console.log(res.data)
+              this.newData = res.data
+              //alert(this.newData)
+              for(let i = 0;i < this.pageSize;i++){
+                this.tableData.push(this.newData[i])
+                console.log(this.newData)
+              }
+              return this.newData
+            })
+          },
           read(){
           },
           handleEdit(index, row) {

@@ -1,18 +1,4 @@
-<!--
-<template>
 
-</template>
-
-<script>
-    export default {
-        name: "register"
-    }
-</script>
-
-<style scoped>
-
-</style>
--->
 <template>
   <div class="img" :style="img">
 <!--
@@ -39,11 +25,11 @@
 -->
     <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
       <div style="font-size: 24px; margin: 20px 0px">注  册</div>
-      <el-form-item label="用户名:" prop="admin">
-        <el-input type="password" v-model="ruleForm.admin" autocomplete="off"></el-input>
+      <el-form-item label="用户名:" prop="name">
+        <el-input type="password" v-model="ruleForm.name" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item label="密码:" prop="pass">
-        <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+      <el-form-item label="密码:" prop="password">
+        <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item label="确认密码:" prop="checkPass">
         <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
@@ -53,14 +39,14 @@
       </el-form-item>
       <el-form-item label="性别:" prop="sex">
         <el-radio-group v-model="ruleForm.sex">
-          <el-radio label="男生"></el-radio>
-          <el-radio label="女生"></el-radio>
+          <el-radio label="0" value="男生">男生</el-radio>
+          <el-radio label="1" value="女生">女生</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="权限:" prop="access">
-        <el-radio-group v-model="ruleForm.access">
-          <el-radio label="社员"></el-radio>
-          <el-radio label="管理"></el-radio>
+        <el-radio-group v-model="ruleForm.role">
+          <el-radio label="1" value="社员">社员</el-radio>
+          <el-radio label="0" value="管理">管理</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item>
@@ -111,7 +97,7 @@
       var validatePass2 = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('请再次输入密码'));
-        } else if (value !== this.ruleForm.pass) {
+        } else if (value !== this.ruleForm.password) {
           callback(new Error('两次输入密码不一致!'));
         } else {
           callback();
@@ -121,21 +107,20 @@
         img:{
            backgroundImage:"url(" + require("../../build/timg.gif") + ")",
            backgroundRepeat:"no-repeat",
-          /*backgroundColor:'black '*/
         },
         ruleForm: {
-          admin:'',
+          name:'',
           checkPass:'',
-          pass: '',
+          password:'',
           age:'',
-          sex:'男生',
-          access: '社员'
+          sex:'0',
+          role:'1'
         },
         rules: {
-          admin: [
+          name: [
             { validator: validateAdmin, trigger: 'blur' }
           ],
-          pass: [
+          password: [
             { validator: validatePass, trigger: 'blur' }
           ],
           checkPass: [
@@ -151,7 +136,21 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$router.push("/")
+            let formData = new FormData()
+            formData.append('name', this.ruleForm.name)
+            formData.append('password', this.ruleForm.password)
+            formData.append('role',this.ruleForm.role)
+            formData.append('age', this.ruleForm.age)
+            formData.append('sex', this.ruleForm.sex)
+            this.$axios({
+              method:'POST',
+              contentType:'application/json; charset=utf-8',
+              url:'http://127.0.0.1:8088/user/register',
+              data:formData,
+            }).then(res=>{
+              console.log(this.ruleForm.role)
+              this.$router.push("/")
+            })
           } else {
             console.log('error submit!!');
             return false;

@@ -3,14 +3,17 @@
     <i class="el-icon-edit-outline" @click="dialogWrite = true" style=" text-align: center; font-size: 24px;"></i>
     <el-dialog
       :visible.sync="dialogWrite"
-      width="50%"
+      width="90%"
       :before-close="writeClose">
       <span style="margin: 10px 0px;font-size: 24px">题目</span>
       <el-input type="text" v-model="articleTitle"></el-input>
       <span style="margin: 10px 0px;font-size: 24px">作者</span>
       <el-input type="text" v-model="writer" disabled></el-input>
       <span style="margin: 10px 0px;font-size: 24px">正文</span>
+      <quill-editor  ref="myQuillEditor"></quill-editor>
+<!--
       <el-input type="textarea" v-model="inner"></el-input>
+-->
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogWrite = false">取 消</el-button>
     <el-button type="primary" @click="dialogWrite = false">提交</el-button>
@@ -52,5 +55,8 @@
   }
   /deep/ .el-textarea__inner{
     min-height: 200px !important;
+  }
+  /deep/ .ql-editor{
+    min-height: 300px;
   }
 </style>

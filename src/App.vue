@@ -6,7 +6,7 @@
     <router-view v-if="!$route.meta.keepAlive"></router-view>
   </div>
 </template>
-
+<meta http-equiv="Access-Control-Allow-Origin" content="*" />
 <script>
   import LeftMenu from '@/components/LeftMenu'
 export default {
