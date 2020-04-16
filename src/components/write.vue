@@ -39,14 +39,14 @@
   </span>
     </el-dialog>-->
     <el-table
-      :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-      style="width: 100%">
+      :data="tableData"
+      style="width: 100%" v-loading="loading">
       <el-table-column
-        align="center"
-        label="ID"
-        type="index"
-        width="60">
-      </el-table-column>
+      align="center"
+      label="ID"
+      type="index"
+      width="60">
+    </el-table-column>
       <el-table-column
         align="center"
         label="Name"
@@ -55,7 +55,17 @@
       <el-table-column
         align="center"
         label="Writer"
-        prop="writer">
+        prop="authorName">
+      </el-table-column>
+      <el-table-column
+        align="center"
+        label="CreateTime"
+        prop="createTime">
+      </el-table-column>
+      <el-table-column
+        align="center"
+        label="ModifyTime"
+        prop="modifyTime">
       </el-table-column>
       <el-table-column
         align="center"
@@ -73,15 +83,16 @@
             type="primary"
             icon="el-icon-search"
             title="浏览"
+            @click="addSeeCount(scope.row)"
             circle>
           </el-button>
-          <el-button
-            size="small"
-            type="success"
-            icon="el-icon-star-off"
-            title="收藏"
-            circle
-            @click="handleEdit(scope.$index, scope.row)"></el-button>
+          <!--<el-button-->
+            <!--size="small"-->
+            <!--type="success"-->
+            <!--icon="el-icon-star-off"-->
+            <!--title="收藏"-->
+            <!--circle-->
+            <!--@click="handleEdit(scope.$index, scope.row)"></el-button>-->
           <el-button
             size="small"
             type="info"
@@ -106,7 +117,7 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage"
+        :current-page="currentPage + 1"
         :page-size="10"
         layout="total, sizes, prev, pager, next, jumper"
         :total="totalPage">
@@ -117,48 +128,110 @@
 </template>
 <LeftMenu></LeftMenu>
 <script>
-  export default {
-    name: "write",
-    data(){
-      return{
-        access:'管理',
-        /*dialogVisible: false,*/
-        currentPage: 1,
-        totalPage:1,
-        /*articleTitle:'',
+import articleApi from '../api/articleApi'
+// import collectApi from '../api/collectApi'
+import {mapGetters} from 'vuex'
+export default {
+  name: 'write',
+  data () {
+    return {
+      loading: true,
+      access: '管理',
+      /* dialogVisible: false, */
+      currentPage: 0,
+      totalPage: 0,
+      size: 10,
+      /* articleTitle:'',
         writer:'sss',
-        inner:'',*/
-        tableData: [{
-          name: 'ssss',
-          writer: 'sssss'
-        },],
-        search: ''
+        inner:'', */
+      tableData: [{
+        name: 'ssss',
+        writer: 'sssss'
+      }],
+      search: ''
+    }
+  },
+  computed: {
+    ...mapGetters({
+      searchText: 'userInfo/searchText'
+    })
+  },
+  watch: {
+    searchText: function () {
+      this.getSelfArticle()
+    }
+  },
+  created () {
+    this.getSelfArticle()
+  },
+  methods: {
+    addSeeCount (row) {
+      articleApi.addArticleSeeCount(row.id)
+    },
+    getSelfArticle () {
+      articleApi.getSelfArticle(JSON.parse(localStorage.getItem('user')).id, this.currentPage, this.size, this.searchText)
+        .then(res => {
+          this.loading = false
+          this.totalPage = res.res.total
+          res.res.data.forEach(item => {
+            item.createTime = this.renderTime(item.createTime)
+            item.modifyTime = this.renderTime(item.modifyTime)
+          })
+          this.tableData = res.res.data
+        })
+    },
+    renderTime (date) {
+      if (date) {
+        return new Date(+new Date(new Date(date).toJSON()) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+      } else {
+        return ''
       }
     },
-    methods:{
-      read(){
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-      },
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      },
-      /*handleClose(done) {
+    read () {
+    },
+    // handleEdit (index, row) {
+    //   collectApi.addCollectArticle(row.userId, row.id).then(res => {
+    //     if (res.code === 200) {
+    //       this.$message.success('收藏成功')
+    //       this.getSelfArticle()
+    //     } else {
+    //       this.$message.error('收藏失败')
+    //     }
+    //   })
+    // },
+    handleDelete (index, row) {
+      this.$confirm('是否直接删除该文章？', '提示', {
+        confirmButton: '删除',
+        cancelButtonText: '取消'
+      }).then(() => {
+        articleApi.delArticle(row.userId, row.id).then(res => {
+          if (res.code === 200) {
+            this.$message.success('删除成功')
+            this.currentPage = 0
+            this.getSelfArticle()
+          } else {
+            this.$message.error('删除失败')
+          }
+        })
+      })
+    },
+    handleSizeChange (val) {
+      this.size = val
+      this.getSelfArticle()
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val - 1
+      this.getSelfArticle()
+    }
+    /* handleClose(done) {
         this.$confirm('确认关闭？')
           .then(_ => {
             done();
           })
           .catch(_ => {});
-      }*/
-    }
+      } */
   }
+}
 </script>
 
 <style scoped>

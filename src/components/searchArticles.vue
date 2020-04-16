@@ -114,37 +114,37 @@
 </template>
 
 <script>
-  export default {
-    name: "searchArticles",
-    data(){
-      return{
-        access:'管理',
-        currentPage: 1,
-        totalPage:1,
-        tableData: [{
-          name: 'ssss',
-          writer: 'sssss'
-        },],
-        search: ''
-      }
+export default {
+  name: 'searchArticles',
+  data () {
+    return {
+      access: '管理',
+      currentPage: 1,
+      totalPage: 1,
+      tableData: [{
+        name: 'ssss',
+        writer: 'sssss'
+      }],
+      search: ''
+    }
+  },
+  methods: {
+    read () {
     },
-    methods:{
-      read(){
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-      },
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      }
+    handleEdit (index, row) {
+      console.log(index, row)
+    },
+    handleDelete (index, row) {
+      console.log(index, row)
+    },
+    handleSizeChange (val) {
+      console.log(`每页 ${val} 条`)
+    },
+    handleCurrentChange (val) {
+      console.log(`当前页: ${val}`)
     }
   }
+}
 </script>
 
 <style scoped>

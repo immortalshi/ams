@@ -15,17 +15,17 @@ Vue.use(Router)
 const router = new Router({
   routes: [
     {
-      path:'/',
-      name:'login',
-      component:login,
+      path: '/',
+      name: 'login',
+      component: login,
       meta: {
         keepAlive: false
       }
     },
     {
-      path:'/register',
-      name:'register',
-      component:register,
+      path: '/register',
+      name: 'register',
+      component: register,
       meta: {
         keepAlive: false
       }
@@ -85,7 +85,7 @@ const router = new Router({
       meta: {
         keepAlive: true
       }
-    },
+    }
   ]
 })
 export default router

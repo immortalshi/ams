@@ -22,8 +22,8 @@
   </ul>-->
   <div>
     <el-table
-      :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-      style="width: 100%">
+      :data="tableData"
+      style="width: 100%" v-loading="loading">
       <el-table-column
         align="center"
         label="ID"
@@ -38,7 +38,17 @@
       <el-table-column
         align="center"
         label="Writer"
-        prop="writer">
+        prop="authorName">
+      </el-table-column>
+      <el-table-column
+        align="center"
+        label="CreateTime"
+        prop="createTime">
+      </el-table-column>
+      <el-table-column
+        align="center"
+        label="ModifyTime"
+        prop="modifyTime">
       </el-table-column>
       <el-table-column
         align="center"
@@ -55,9 +65,17 @@
             size="small"
             type="primary"
             icon="el-icon-search"
+            @click="addSeeCount(scope.row)"
             title="浏览"
             circle>
           </el-button>
+          <el-button
+            size="small"
+            type="warning"
+            icon="el-icon-star-off"
+            title="移除收藏"
+            circle
+            @click="handleEdit(scope.$index, scope.row)"></el-button>
           <el-button
             size="small"
             type="info"
@@ -82,7 +100,7 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage"
+        :current-page="currentPage + 1"
         :page-size="10"
         layout="total, sizes, prev, pager, next, jumper"
         :total="totalPage">
@@ -92,37 +110,100 @@
 </template>
 
 <script>
-  export default {
-    name: "collect",
-    data(){
-      return{
-        access:'管理',
-        currentPage: 1,
-        totalPage:1,
-        tableData: [{
-          name: 'ssss',
-          writer: 'sssss'
-        },],
-        search: ''
+import articleApi from '../api/articleApi'
+import collectApi from '../api/collectApi'
+import {mapGetters} from 'vuex'
+export default {
+  name: 'collect',
+  data () {
+    return {
+      loading: true,
+      access: '管理',
+      currentPage: 0,
+      totalPage: 0,
+      size: 10,
+      tableData: [{
+        name: 'ssss',
+        writer: 'sssss'
+      }],
+      search: ''
+    }
+  },
+  created () {
+    this.getFavoriteArticle()
+  },
+  computed: {
+    ...mapGetters({
+      searchText: 'userInfo/searchText'
+    })
+  },
+  watch: {
+    searchText: function () {
+      this.getFavoriteArticle()
+    }
+  },
+  methods: {
+    addSeeCount (row) {
+      articleApi.addArticleSeeCount(row.id)
+    },
+    getFavoriteArticle () {
+      articleApi.getFavoriteArticle(JSON.parse(localStorage.getItem('user')).id, this.currentPage, this.size, this.searchText)
+        .then(res => {
+          this.loading = false
+          this.totalPage = res.res.total
+          res.res.data.forEach(item => {
+            item.createTime = this.renderTime(item.createTime)
+            item.modifyTime = this.renderTime(item.modifyTime)
+          })
+          this.tableData = res.res.data
+        })
+    },
+    renderTime (date) {
+      if (date) {
+        return new Date(+new Date(new Date(date).toJSON()) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+      } else {
+        return ''
       }
     },
-    methods:{
-      read(){
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
-      },
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      }
+    read () {
+    },
+    handleEdit (index, row) {
+      collectApi.removeCollect(row.userId, row.id).then(res => {
+        if (res.code === 200) {
+          this.$message.success('移除成功')
+          this.currentPage = 0
+          this.getFavoriteArticle()
+        } else {
+          this.$message.error('移除失败')
+        }
+      })
+    },
+    handleDelete (index, row) {
+      this.$confirm('是否直接删除该文章？', '提示', {
+        confirmButton: '删除',
+        cancelButtonText: '取消'
+      }).then(() => {
+        articleApi.delArticle(row.userId, row.id).then(res => {
+          if (res.code === 200) {
+            this.$message.success('删除成功')
+            this.currentPage = 0
+            this.getFavoriteArticle()
+          } else {
+            this.$message.error('删除失败')
+          }
+        })
+      })
+    },
+    handleSizeChange (val) {
+      this.size = val
+      this.getFavoriteArticle()
+    },
+    handleCurrentChange (val) {
+      this.currentPage = val - 1
+      this.getFavoriteArticle()
     }
   }
+}
 </script>
 
 <style scoped>

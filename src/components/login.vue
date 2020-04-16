@@ -23,78 +23,68 @@
 </template>
 
 <script>
-    export default {
-        name: "login",
-      data(){
-        var validatename = (rule, value, callback) => {
-          if (value === '') {
-            return callback(new Error('请输入用户名'));
-          } else {
-            callback();
-          }
-        };
-        var validatePass = (rule, value, callback) => {
-          if (value === '') {
-            callback(new Error('请输入密码'));
-          } else {
-            callback();
-          }
-        };
-          return{
-            img:{
-              backgroundImage:"url(" + require("../../build/timg.gif") + ")",
-              backgroundRepeat:"no-repeat",
-            },
-            ruleForm: {
-              name:'',
-              password: '',
-              role:'1',
-            },
-            rules: {
-              name: [
-                { validator: validatename, trigger: 'blur' }
-              ],
-              password: [
-                { validator: validatePass, trigger: 'blur' }
-              ],
-            }
-          };
-      },
-      methods: {
-        login(formName) {
-          this.$refs[formName].validate((valid) => {
-            if (valid) {
-              let formData = new FormData()
-              /*formData.append('grant_type', 'password')*/
-              formData.append('name', this.ruleForm.name)
-              formData.append('password', this.ruleForm.password)
-              formData.append('role',this.ruleForm.role)
-              /*formData.append('type', 2)*/
-              this.$axios({
-                method:'post',
-                contentType:'application/json;',
-                url:'http://127.0.0.1:8088/user/login',
-                data:formData,
-                /*headers: {
-                  Authorization: 'Basic eXVhbnR1Onl1YW50dQ=='
-                }*/
-              }).then(res=>{
-                console.log(res)
-                if(res.status === 200){
-                  this.$router.push("/index")
-                }
-              })
-            } else {
-              console.log('error submit!!');
-              return false;
-            }
-          });
-        },
-        resetForm(formName) {
-          this.$router.push("/register");
-        }
+import userApi from '../api/userApi'
+
+export default {
+  name: 'login',
+  data () {
+    var validatename = (rule, value, callback) => {
+      if (value === '') {
+        return callback(new Error('请输入用户名'))
+      } else {
+        callback()
       }
     }
+    var validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        callback()
+      }
+    }
+    return {
+      img: {
+        backgroundImage: 'url(' + require('../../build/timg.gif') + ')',
+        backgroundRepeat: 'no-repeat'
+      },
+      ruleForm: {
+        name: '',
+        password: '',
+        role: '1'
+      },
+      rules: {
+        name: [
+          { validator: validatename, trigger: 'blur' }
+        ],
+        password: [
+          { validator: validatePass, trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  methods: {
+    login (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          userApi.login(this.ruleForm).then(res => {
+            if (res.code === 200) {
+              localStorage.setItem('user', JSON.stringify(res.res))
+              this.$router.push('/index')
+            } else {
+              this.$message.error(res.message)
+            }
+          })
+            .catch(e => {
+              console.log(e)
+            })
+        }
+      })
+    },
+    resetForm (formName) {
+      this.$router.push('/register')
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -129,4 +119,3 @@
     margin-left: 100px;
   }
 </style>
-

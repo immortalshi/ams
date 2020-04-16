@@ -65,39 +65,39 @@
 </template>
 
 <script>
-  import personalMsg from './personalMsg.vue'
-  import message from './message.vue'
-  import draft from './draft.vue'
-    export default {
-      name: 'LeftMenu',
-      components:{
-        personalMsg,
-        message,
-        draft
-      },
-      data() {
-        return {
-          access:"管理",
-          loading: false,
-          input:'',
-          timer: null,
-        };
-      },
-      methods: {
-        handleDelete(index, row) {
-          console.log(index, row);
-        },
-        handleOpen(key, keyPath) {
-          console.log(key, keyPath);
-        },
-        handleClose(key, keyPath) {
-          console.log(key, keyPath);
-        },
-        searchArticles(){
-          this.$router.push("/searchArticles")
-        }
-      }
+import personalMsg from './personalMsg.vue'
+import message from './message.vue'
+import draft from './draft.vue'
+export default {
+  name: 'LeftMenu',
+  components: {
+    personalMsg,
+    message,
+    draft
+  },
+  data () {
+    return {
+      access: '管理',
+      loading: false,
+      input: '',
+      timer: null
     }
+  },
+  methods: {
+    handleDelete (index, row) {
+      console.log(index, row)
+    },
+    handleOpen (key, keyPath) {
+      console.log(key, keyPath)
+    },
+    handleClose (key, keyPath) {
+      console.log(key, keyPath)
+    },
+    searchArticles () {
+      this.$store.dispatch('userInfo/setSearchText', this.input)
+    }
+  }
+}
 </script>
 
 <style scoped>
