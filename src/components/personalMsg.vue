@@ -18,7 +18,7 @@
               姓名:<span>{{form.name}}</span>
             </li>
             <li class="lis">
-              性别:<span>{{form.sex === 1 ? '男' : '女'}}</span>
+              性别:<span>{{form.sex === 0 ? '男' : '女'}}</span>
             </li>
             <li class="lis">
               年龄:<span>{{form.age}}</span>
@@ -70,8 +70,8 @@
               </el-form-item>
               <el-form-item label="性别" :label-width="formLabelWidth">
                 <el-radio-group v-model="form.sex">
-                  <el-radio :label="1">男</el-radio>
-                  <el-radio :label="0">女</el-radio>
+                  <el-radio :label="0">男</el-radio>
+                  <el-radio :label="1">女</el-radio>
                 </el-radio-group>
                 <!--<input type="radio" v-model="form.sex" value="男"><label>男</label>
                 <input type="radio" v-model="form.sex" value="女"><label>女</label>-->
